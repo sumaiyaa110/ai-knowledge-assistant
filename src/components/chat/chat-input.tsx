@@ -28,12 +28,29 @@ export function ChatInput({
   const [value, setValue] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // Grow with the text, up to a limit, then scroll.
+  // Grow with the text, up to a limit, then scroll. Re-measured when the
+  // text changes and when the box changes width (window resize, drawer
+  // opening), since the same text wraps differently at another width.
   useEffect(() => {
     const textarea = textareaRef.current;
     if (!textarea) return;
-    textarea.style.height = "auto";
-    textarea.style.height = `${Math.min(textarea.scrollHeight, MAX_HEIGHT_PX)}px`;
+
+    let lastWidth = -1;
+    const fit = () => {
+      textarea.style.height = "auto";
+      textarea.style.height = `${Math.min(textarea.scrollHeight, MAX_HEIGHT_PX)}px`;
+    };
+    fit();
+
+    const observer = new ResizeObserver(([entry]) => {
+      const width = Math.round(entry.contentRect.width);
+      if (width !== lastWidth) {
+        lastWidth = width;
+        fit();
+      }
+    });
+    observer.observe(textarea);
+    return () => observer.disconnect();
   }, [value]);
 
   const canSend = !busy && !disabled && value.trim().length > 0;
