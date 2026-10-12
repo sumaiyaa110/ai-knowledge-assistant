@@ -32,8 +32,11 @@ model User {
   email        String   @unique
   passwordHash String
   name         String?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  // Embedded in every JWT. Bumping it (e.g. on password change) invalidates
+  // all previously issued sessions for this user.
+  sessionVersion Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
   documents     Document[]
   conversations Conversation[]

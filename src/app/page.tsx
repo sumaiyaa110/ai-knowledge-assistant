@@ -1,5 +1,8 @@
 import { CheckCircle2, XCircle } from "lucide-react";
+import Link from "next/link";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
+import { buttonVariants } from "@/components/ui/button";
+import { getSession } from "@/lib/auth/session";
 import {
   Card,
   CardContent,
@@ -33,13 +36,25 @@ function StatusRow({ name, status }: { name: string; status: ServiceStatus }) {
 }
 
 export default async function Home() {
-  const [database, ollama] = await Promise.all([checkDatabase(), checkOllama()]);
+  const [database, ollama, session] = await Promise.all([
+    checkDatabase(),
+    checkOllama(),
+    getSession(),
+  ]);
 
   return (
     <div className="flex min-h-dvh flex-col">
       <header className="flex items-center justify-between border-b px-4 py-3 sm:px-6">
         <span className="font-semibold">AI Knowledge Assistant</span>
-        <ThemeToggle />
+        <div className="flex items-center gap-2">
+          <Link
+            href={session ? "/dashboard" : "/login"}
+            className={buttonVariants({ variant: "outline" })}
+          >
+            {session ? "Dashboard" : "Sign in"}
+          </Link>
+          <ThemeToggle />
+        </div>
       </header>
 
       <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col justify-center gap-8 px-4 py-12 sm:px-6">
@@ -51,13 +66,18 @@ export default async function Home() {
             Upload PDFs, text and Markdown files, then ask questions answered
             by a local model. Nothing leaves this computer.
           </p>
+          {!session && (
+            <Link href="/register" className={buttonVariants({ size: "lg" })}>
+              Create an account
+            </Link>
+          )}
         </div>
 
         <Card>
           <CardHeader>
             <CardTitle>Local services</CardTitle>
             <CardDescription>
-              Sign-in and uploads arrive in the next phases.
+              Both need to be running for uploads and chat.
             </CardDescription>
           </CardHeader>
           <CardContent>

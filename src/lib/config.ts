@@ -2,7 +2,7 @@
 export const config = {
   ollama: {
     baseUrl: process.env.OLLAMA_BASE_URL ?? "http://localhost:11434",
-    model: process.env.OLLAMA_MODEL ?? "llama3.2:3b",
+    model: process.env.OLLAMA_MODEL ?? "qwen2.5:3b",
   },
   embeddings: {
     model: process.env.EMBEDDING_MODEL ?? "Xenova/all-MiniLM-L6-v2",

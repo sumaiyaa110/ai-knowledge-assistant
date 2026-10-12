@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "AI Knowledge Assistant",
+  title: { default: "AI Knowledge Assistant", template: "%s · AI Knowledge Assistant" },
   description: "Chat with your documents using a local AI model.",
 };
 
