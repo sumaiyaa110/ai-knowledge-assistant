@@ -1,0 +1,158 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum DocumentStatus {
+  UPLOADED
+  EXTRACTING
+  CHUNKING
+  EMBEDDING
+  READY
+  FAILED
+}
+
+enum MessageRole {
+  USER
+  ASSISTANT
+  SYSTEM
+}
+
+enum StudySetType {
+  QUIZ
+  FLASHCARDS
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  documents     Document[]
+  conversations Conversation[]
+
+  @@map("users")
+}
+
+model Document {
+  id          String         @id @default(cuid())
+  userId      String
+  title       String
+  fileName    String
+  mimeType    String
+  sizeBytes   Int
+  storagePath String
+  status      DocumentStatus @default(UPLOADED)
+  error       String?
+  pageCount   Int?
+  chunkCount  Int            @default(0)
+  // { short, mainPoints[], concepts[] } once the summarizer has run
+  summary            Json?
+  suggestedQuestions Json?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  user          User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  chunks        DocumentChunk[]
+  conversations ConversationDocument[]
+  studySets     StudySet[]
+
+  @@index([userId, createdAt])
+  @@map("documents")
+}
+
+model DocumentChunk {
+  id         String   @id @default(cuid())
+  documentId String
+  index      Int
+  content    String
+  tokenCount Int
+  pageNumber Int?
+  createdAt  DateTime @default(now())
+
+  document  Document   @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  embedding Embedding?
+
+  @@unique([documentId, index])
+  @@map("document_chunks")
+}
+
+model Embedding {
+  id      String @id @default(cuid())
+  chunkId String @unique
+  model   String
+  // pgvector column. Prisma has no native vector type, so reads/writes of this
+  // column go through raw SQL in src/lib/database. The HNSW index on it is
+  // created by hand in the init migration.
+  vector    Unsupported("vector(384)")
+  createdAt DateTime                   @default(now())
+
+  chunk DocumentChunk @relation(fields: [chunkId], references: [id], onDelete: Cascade)
+
+  // Declared so Prisma knows the index exists and does not try to drop it.
+  // The real definition (USING hnsw ... vector_cosine_ops) is in the init migration.
+  @@index([vector], map: "embeddings_vector_hnsw_idx")
+  @@map("embeddings")
+}
+
+model Conversation {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String   @default("New chat")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages  Message[]
+  documents ConversationDocument[]
+
+  @@index([userId, updatedAt])
+  @@map("conversations")
+}
+
+// Which documents a conversation is scoped to.
+model ConversationDocument {
+  conversationId String
+  documentId     String
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  document     Document     @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@id([conversationId, documentId])
+  @@map("conversation_documents")
+}
+
+model Message {
+  id             String      @id @default(cuid())
+  conversationId String
+  role           MessageRole
+  content        String
+  // [{ chunkId, documentId, documentTitle, pageNumber, similarity }]
+  sources   Json?
+  createdAt DateTime @default(now())
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId, createdAt])
+  @@map("messages")
+}
+
+model StudySet {
+  id         String       @id @default(cuid())
+  documentId String
+  type       StudySetType
+  content    Json
+  createdAt  DateTime     @default(now())
+
+  document Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@index([documentId, type])
+  @@map("study_sets")
+}

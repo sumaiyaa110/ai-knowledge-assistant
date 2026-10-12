@@ -1,36 +1,45 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AI Knowledge Assistant
 
-## Getting Started
+Upload documents and chat with them using a local AI model. Everything runs on
+your machine with free, open-source tools: no paid APIs, no cloud AI.
 
-First, run the development server:
+**Stack:** Next.js 15, TypeScript, Tailwind CSS, shadcn/ui, PostgreSQL + pgvector,
+Prisma, Ollama, `@huggingface/transformers` (all-MiniLM-L6-v2 embeddings).
+
+## Status
+
+Phase 1 of 8 (foundation) is complete. Auth, uploads, chat and AI tools follow.
+
+## Prerequisites
+
+- Node.js 20+
+- Docker Desktop (for PostgreSQL + pgvector)
+- [Ollama](https://ollama.com) with a model pulled: `ollama pull llama3.2:3b`
+
+## Setup
 
 ```bash
+cp .env.example .env
+npm install
+npm run db:up        # start PostgreSQL + pgvector on localhost:5433
+npm run db:deploy    # apply migrations
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000 (Next.js picks the next free port if 3000 is taken).
+The home page shows whether the database and Ollama are reachable.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Scripts
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Script | What it does |
+|---|---|
+| `npm run dev` | Start the dev server |
+| `npm run db:up` / `db:down` | Start / stop the database container (data is kept) |
+| `npm run db:migrate` | Create and apply a migration after editing `prisma/schema.prisma` |
+| `npm run db:deploy` | Apply existing migrations |
+| `npm run db:studio` | Browse the database in Prisma Studio |
 
-## Learn More
+## Changing the LLM
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Set `OLLAMA_MODEL` in `.env` (for example `qwen2.5:7b` or `mistral:7b`), pull it
+with `ollama pull <model>`, and restart the dev server.

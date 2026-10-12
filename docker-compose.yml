@@ -1,0 +1,23 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: aika-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-aika}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-aika_dev_password}
+      POSTGRES_DB: ${POSTGRES_DB:-aika}
+    ports:
+      # Bound to localhost only. Host port defaults to 5433 because 5432 is
+      # commonly taken by another Postgres.
+      - "127.0.0.1:${POSTGRES_PORT:-5433}:5432"
+    volumes:
+      - aika_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-aika} -d ${POSTGRES_DB:-aika}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  aika_pgdata:
