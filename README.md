@@ -8,8 +8,8 @@ Prisma, Ollama, `@huggingface/transformers` (all-MiniLM-L6-v2 embeddings).
 
 ## Status
 
-Phases 1-3 of 8 (foundation, authentication, app layout and dashboard) are
-complete. Uploads, chat and AI tools follow.
+Phases 1-4 of 8 (foundation, authentication, app layout and dashboard, document
+upload and processing) are complete. Embeddings, chat and AI tools follow.
 
 ## Prerequisites
 
@@ -50,6 +50,24 @@ httpOnly cookie for 7 days. Passwords are hashed with bcrypt.
 - `src/middleware.ts` blocks anonymous access to app pages and API routes.
 - Pages call `requireUser()`, which also checks the database, so deleted users
   and sessions issued before a password change are rejected.
+
+## Document processing
+
+Uploads (PDF, TXT, Markdown; 20 MB per file, 500 MB per user by default) are
+stored at `uploads/<userId>/<documentId>.<ext>` and processed in the background:
+
+```
+UPLOADED -> EXTRACTING -> CHUNKING -> EMBEDDING -> READY   (or FAILED)
+```
+
+- `src/lib/documents/` validates and stores files and owns the database records.
+- `src/lib/rag/` holds the pipeline: `extract.ts` (PDF text per page via
+  `unpdf`), `clean.ts`, `chunk.ts` (recursive splitter, about 800 characters
+  with 150 overlap) and `queue.ts` (in-process queue, one document at a time).
+- Documents interrupted by a server restart are re-queued on startup
+  (`src/instrumentation.ts`).
+
+Scanned PDFs without a text layer are not supported (no OCR).
 
 ## Changing the LLM
 
