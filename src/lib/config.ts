@@ -11,5 +11,7 @@ export const config = {
   uploads: {
     dir: process.env.UPLOAD_DIR ?? "./uploads",
     maxBytes: Number(process.env.MAX_UPLOAD_MB ?? 20) * 1024 * 1024,
+    // Per-user total across all documents.
+    quotaBytes: Number(process.env.STORAGE_QUOTA_MB ?? 500) * 1024 * 1024,
   },
 } as const;

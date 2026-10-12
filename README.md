@@ -8,8 +8,8 @@ Prisma, Ollama, `@huggingface/transformers` (all-MiniLM-L6-v2 embeddings).
 
 ## Status
 
-Phases 1-2 of 8 (foundation, authentication) are complete. Uploads, chat and AI
-tools follow.
+Phases 1-3 of 8 (foundation, authentication, app layout and dashboard) are
+complete. Uploads, chat and AI tools follow.
 
 ## Prerequisites
 

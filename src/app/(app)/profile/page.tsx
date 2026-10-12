@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { PasswordForm } from "@/components/auth/password-form";
 import { ProfileForm } from "@/components/auth/profile-form";
+import { PageHeader } from "@/components/layout/page-header";
 import {
   Card,
   CardContent,
@@ -31,7 +32,7 @@ export default async function ProfilePage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-semibold tracking-tight">Profile</h1>
+      <PageHeader title="Profile" description="Your account details and password." />
 
       <dl className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {stats.map((stat) => (
