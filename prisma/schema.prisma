@@ -109,8 +109,11 @@ model Conversation {
   id        String   @id @default(cuid())
   userId    String
   title     String   @default("New chat")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  // true: search every document the user has. false: only the documents
+  // linked through ConversationDocument (which may all have been deleted since).
+  allDocuments Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   user      User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
   messages  Message[]

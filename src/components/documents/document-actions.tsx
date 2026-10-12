@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { sendJson } from "@/lib/api/client";
 import { isProcessing, type DocumentStatus } from "@/models/document";
+import { StartChatButton } from "./start-chat-button";
 
 const POLL_INTERVAL_MS = 1500;
 
@@ -49,6 +50,7 @@ export function DocumentActions({ documentId, status }: DocumentActionsProps) {
   return (
     <div className="flex flex-col items-end gap-2">
       <div className="flex flex-wrap items-center justify-end gap-2">
+        {status === "READY" && <StartChatButton documentId={documentId} />}
         <a
           href={`/api/documents/${documentId}/file`}
           target="_blank"

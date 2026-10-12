@@ -1,4 +1,5 @@
 import type { DocumentStatus } from "@prisma/client";
+import { queueSuggestedQuestions } from "@/lib/ai/suggestions";
 import { prisma } from "@/lib/database/prisma";
 import { readUpload } from "@/lib/documents/storage";
 import { EmbeddingError } from "@/lib/embeddings/embed";
@@ -75,6 +76,9 @@ export async function processDocument(documentId: string): Promise<void> {
     await embedDocumentChunks(documentId);
 
     await setStatus(documentId, "READY");
+    // Starter questions for the chat screen. Not awaited: the document is
+    // usable without them, and the local model can take a while.
+    queueSuggestedQuestions(documentId);
   } catch (error) {
     if (error instanceof DocumentGoneError) return;
     await markFailed(documentId, error);

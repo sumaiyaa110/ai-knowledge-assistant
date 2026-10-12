@@ -128,3 +128,70 @@
     @apply font-sans;
   }
 }
+/* Markdown written by the model in chat answers. */
+.chat-markdown {
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+}
+.chat-markdown > * + * {
+  margin-top: 0.75em;
+}
+.chat-markdown :is(h1, h2, h3, h4) {
+  font-weight: 600;
+  line-height: 1.3;
+}
+.chat-markdown :is(h1, h2) {
+  font-size: 1.05rem;
+}
+.chat-markdown :is(ul, ol) {
+  padding-left: 1.25rem;
+}
+.chat-markdown ul {
+  list-style: disc;
+}
+.chat-markdown ol {
+  list-style: decimal;
+}
+.chat-markdown li + li {
+  margin-top: 0.25em;
+}
+.chat-markdown a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.chat-markdown strong {
+  font-weight: 600;
+}
+.chat-markdown code {
+  border-radius: 0.3rem;
+  background: var(--muted);
+  padding: 0.1em 0.35em;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.9em;
+}
+.chat-markdown pre {
+  overflow-x: auto;
+  border-radius: 0.6rem;
+  background: var(--muted);
+  padding: 0.75rem 1rem;
+}
+.chat-markdown pre code {
+  background: none;
+  padding: 0;
+}
+.chat-markdown blockquote {
+  border-left: 2px solid var(--border);
+  padding-left: 0.85rem;
+  color: var(--muted-foreground);
+}
+.chat-markdown table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+  border-collapse: collapse;
+}
+.chat-markdown :is(th, td) {
+  border: 1px solid var(--border);
+  padding: 0.3rem 0.6rem;
+  text-align: left;
+}

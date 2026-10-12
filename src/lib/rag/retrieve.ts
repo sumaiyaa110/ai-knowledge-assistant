@@ -2,6 +2,7 @@ import { config } from "@/lib/config";
 import { findSimilarChunks } from "@/lib/database/vectors";
 import { embedQuery } from "@/lib/embeddings/embed";
 import type { RelevantContext, RetrievedChunk, SearchOptions } from "@/models/retrieval";
+import { estimateTokens } from "./chunk";
 
 const MAX_QUERY_CHARS = 2000;
 const MAX_LIMIT = 50;
@@ -37,10 +38,15 @@ export async function searchSimilarChunks({
   return rows.filter((row) => row.similarity >= minSimilarity);
 }
 
-/** "[1] Title (page 3)" style header followed by the chunk text. */
+/**
+ * One chunk as a tagged block. Tags (rather than a "[1] Title" heading) keep
+ * small models from copying the heading into the answer, and make it clear
+ * where a source ends.
+ */
 function formatSource(chunk: RetrievedChunk, number: number): string {
-  const page = chunk.pageNumber === null ? "" : ` (page ${chunk.pageNumber})`;
-  return `[${number}] ${chunk.documentTitle}${page}\n${chunk.content}`;
+  const title = chunk.documentTitle.replace(/"/g, "'");
+  const page = chunk.pageNumber === null ? "" : ` page="${chunk.pageNumber}"`;
+  return `<source id="${number}" document="${title}"${page}>\n${chunk.content}\n</source>`;
 }
 
 /**
@@ -50,14 +56,24 @@ function formatSource(chunk: RetrievedChunk, number: number): string {
  * asking the LLM.
  */
 export async function getRelevantContext(options: SearchOptions): Promise<RelevantContext> {
-  const chunks = await searchSimilarChunks({
+  const found = await searchSimilarChunks({
     ...options,
     minSimilarity: options.minSimilarity ?? config.rag.minSimilarity,
   });
 
+  // Keep the best chunks that fit the prompt's context budget. The top chunk
+  // is always kept, so a single long passage is never dropped entirely.
+  const chunks: RetrievedChunk[] = [];
+  let tokens = 0;
+  for (const chunk of found) {
+    tokens += estimateTokens(chunk.content) + 20; // + the <source> tags
+    if (chunks.length > 0 && tokens > config.rag.maxContextTokens) break;
+    chunks.push(chunk);
+  }
+
   return {
     chunks,
-    text: chunks.map((chunk, i) => formatSource(chunk, i + 1)).join("\n\n---\n\n"),
+    text: chunks.map((chunk, i) => formatSource(chunk, i + 1)).join("\n\n"),
     isEmpty: chunks.length === 0,
   };
 }

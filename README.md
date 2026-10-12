@@ -8,8 +8,8 @@ Prisma, Ollama, `@huggingface/transformers` (all-MiniLM-L6-v2 embeddings).
 
 ## Status
 
-Phases 1-5 of 8 (foundation, authentication, app layout and dashboard, document
-upload and processing, embeddings and vector search) are complete. Chat and AI
+Phases 1-6 of 8 (foundation, authentication, app layout and dashboard, document
+upload and processing, embeddings and vector search, RAG chat) are complete. AI
 tools follow.
 
 ## Prerequisites
@@ -92,6 +92,28 @@ documents that were processed before embeddings existed, or after changing
 ```bash
 npm run embeddings:backfill
 ```
+
+## Chat
+
+Each question goes through the same steps:
+
+```
+question -> embed -> pgvector search (user's documents only) -> prompt with the
+passages -> Ollama streams the answer -> answer and sources are saved
+```
+
+- If no passage is relevant enough, the app answers "I couldn't find that in
+  your documents." itself, without calling the model.
+- The model is told to answer only from the passages and to cite them as `[1]`,
+  `[2]`. The sources shown under an answer are stored with the message, so old
+  chats still read correctly after a document is deleted.
+- A chat covers either all documents or the ones chosen when it was started.
+- `src/lib/ai/` holds the Ollama client, the prompts and suggested questions;
+  `src/lib/chat/` holds conversations and the answer pipeline.
+- Three suggested questions are generated for each document once it is ready.
+
+Small local models are slow on CPU and can still misread a passage, so answers
+should be checked against the sources shown.
 
 ## Changing the LLM
 

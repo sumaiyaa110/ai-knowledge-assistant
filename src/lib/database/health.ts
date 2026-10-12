@@ -1,7 +1,7 @@
+import type { ServiceStatus } from "@/lib/ai/ollama";
 import { prisma } from "./prisma";
-import { config } from "@/lib/config";
 
-export type ServiceStatus = { ok: boolean; detail: string };
+export { checkOllama, type ServiceStatus } from "@/lib/ai/ollama";
 
 export async function checkDatabase(): Promise<ServiceStatus> {
   try {
@@ -14,22 +14,5 @@ export async function checkDatabase(): Promise<ServiceStatus> {
     return { ok: true, detail: `Connected, pgvector ${rows[0].extversion}` };
   } catch {
     return { ok: false, detail: "Not reachable. Run: npm run db:up" };
-  }
-}
-
-export async function checkOllama(): Promise<ServiceStatus> {
-  try {
-    const res = await fetch(`${config.ollama.baseUrl}/api/tags`, {
-      signal: AbortSignal.timeout(2000),
-      cache: "no-store",
-    });
-    if (!res.ok) return { ok: false, detail: `Ollama responded with ${res.status}` };
-    const data = (await res.json()) as { models?: { name: string }[] };
-    const installed = data.models?.some((m) => m.name === config.ollama.model);
-    return installed
-      ? { ok: true, detail: `Running, ${config.ollama.model} installed` }
-      : { ok: false, detail: `Running, but run: ollama pull ${config.ollama.model}` };
-  } catch {
-    return { ok: false, detail: `Not reachable at ${config.ollama.baseUrl}` };
   }
 }
