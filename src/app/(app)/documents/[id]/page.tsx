@@ -35,19 +35,23 @@ export default async function DocumentDetailPage({ params, searchParams }: PageP
   const requested = Number((await searchParams).page);
   const page = Number.isInteger(requested) ? Math.min(Math.max(requested, 1), pageCount) : 1;
 
-  const chunks = await prisma.documentChunk.findMany({
-    where: { documentId: document.id },
-    orderBy: { index: "asc" },
-    skip: (page - 1) * CHUNKS_PER_PAGE,
-    take: CHUNKS_PER_PAGE,
-    select: { id: true, index: true, content: true, tokenCount: true, pageNumber: true },
-  });
+  const [chunks, vectorCount] = await Promise.all([
+    prisma.documentChunk.findMany({
+      where: { documentId: document.id },
+      orderBy: { index: "asc" },
+      skip: (page - 1) * CHUNKS_PER_PAGE,
+      take: CHUNKS_PER_PAGE,
+      select: { id: true, index: true, content: true, tokenCount: true, pageNumber: true },
+    }),
+    prisma.embedding.count({ where: { chunk: { documentId: document.id } } }),
+  ]);
 
   const metadata = [
     { label: "Type", value: getTypeLabel(document.mimeType) },
     { label: "Size", value: formatBytes(document.sizeBytes) },
     { label: "Pages", value: document.pageCount ?? "n/a" },
     { label: "Chunks", value: document.chunkCount },
+    { label: "Embedded", value: `${vectorCount} of ${document.chunkCount}` },
     {
       label: "Uploaded",
       value: document.createdAt.toLocaleString("en", { dateStyle: "medium", timeStyle: "short" }),
@@ -98,7 +102,7 @@ export default async function DocumentDetailPage({ params, searchParams }: PageP
         </p>
       )}
 
-      <dl className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+      <dl className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
         {metadata.map((item) => (
           <div key={item.label} className="rounded-xl border bg-card px-4 py-3">
             <dt className="text-sm text-muted-foreground">{item.label}</dt>
@@ -140,7 +144,7 @@ export default async function DocumentDetailPage({ params, searchParams }: PageP
                 <p className="mb-2 text-xs text-muted-foreground">
                   Chunk {chunk.index + 1}
                   {chunk.pageNumber !== null && ` · Page ${chunk.pageNumber}`}
-                  {` · ${chunk.content.length} characters · about ${chunk.tokenCount} tokens`}
+                  {` · ${chunk.content.length} characters · ${chunk.tokenCount} tokens`}
                 </p>
                 <p className="text-sm leading-relaxed break-words whitespace-pre-wrap">
                   {chunk.content}

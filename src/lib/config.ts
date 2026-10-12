@@ -7,6 +7,16 @@ export const config = {
   embeddings: {
     model: process.env.EMBEDDING_MODEL ?? "Xenova/all-MiniLM-L6-v2",
     dimensions: Number(process.env.EMBEDDING_DIMENSIONS ?? 384),
+    // Where downloaded model files are kept.
+    cacheDir: process.env.EMBEDDING_CACHE_DIR ?? "./.cache/models",
+    // Set to "true" once the model is cached to forbid any network access.
+    offline: process.env.EMBEDDING_OFFLINE === "true",
+  },
+  rag: {
+    // How many chunks to retrieve for a question.
+    topK: Number(process.env.RAG_TOP_K ?? 6),
+    // Chunks scoring below this cosine similarity are treated as irrelevant.
+    minSimilarity: Number(process.env.RAG_MIN_SIMILARITY ?? 0.3),
   },
   uploads: {
     dir: process.env.UPLOAD_DIR ?? "./uploads",

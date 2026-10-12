@@ -34,6 +34,9 @@ yarn-error.log*
 .env*
 !.env.example
 
+# downloaded embedding model files
+/.cache/
+
 # uploaded user files
 /uploads/*
 !/uploads/.gitkeep

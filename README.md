@@ -8,8 +8,9 @@ Prisma, Ollama, `@huggingface/transformers` (all-MiniLM-L6-v2 embeddings).
 
 ## Status
 
-Phases 1-4 of 8 (foundation, authentication, app layout and dashboard, document
-upload and processing) are complete. Embeddings, chat and AI tools follow.
+Phases 1-5 of 8 (foundation, authentication, app layout and dashboard, document
+upload and processing, embeddings and vector search) are complete. Chat and AI
+tools follow.
 
 ## Prerequisites
 
@@ -40,6 +41,7 @@ The home page shows whether the database and Ollama are reachable.
 | `npm run db:migrate` | Create and apply a migration after editing `prisma/schema.prisma` |
 | `npm run db:deploy` | Apply existing migrations |
 | `npm run db:studio` | Browse the database in Prisma Studio |
+| `npm run embeddings:backfill` | Embed documents that are missing vectors |
 
 ## Authentication
 
@@ -68,6 +70,28 @@ UPLOADED -> EXTRACTING -> CHUNKING -> EMBEDDING -> READY   (or FAILED)
   (`src/instrumentation.ts`).
 
 Scanned PDFs without a text layer are not supported (no OCR).
+
+## Embeddings and search
+
+Chunks are embedded in-process with `all-MiniLM-L6-v2` (384 dimensions) through
+`@huggingface/transformers`. The model files (about 90 MB) are downloaded to
+`.cache/models` the first time a document is processed; after that everything
+works offline, and `EMBEDDING_OFFLINE=true` forbids network access entirely.
+
+- `src/lib/embeddings/` loads the model and turns text into unit-length vectors.
+- `src/lib/database/vectors.ts` stores vectors in pgvector and runs the cosine
+  similarity query (raw SQL, HNSW index).
+- `src/lib/rag/retrieve.ts` exposes `searchSimilarChunks()` and
+  `getRelevantContext()`, always scoped to one user.
+- `POST /api/search` with `{ "query": "..." }` returns the best chunks with scores.
+
+A document only becomes `READY` once every chunk has a stored vector. To embed
+documents that were processed before embeddings existed, or after changing
+`EMBEDDING_MODEL`:
+
+```bash
+npm run embeddings:backfill
+```
 
 ## Changing the LLM
 

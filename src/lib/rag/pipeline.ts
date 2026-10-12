@@ -1,6 +1,7 @@
 import type { DocumentStatus } from "@prisma/client";
 import { prisma } from "@/lib/database/prisma";
 import { readUpload } from "@/lib/documents/storage";
+import { EmbeddingError } from "@/lib/embeddings/embed";
 import { getKindFromMime } from "@/models/document";
 import { chunkPages } from "./chunk";
 import { cleanText, removeRepeatedLines } from "./clean";
@@ -69,19 +70,44 @@ export async function processDocument(documentId: string): Promise<void> {
     });
 
     await setStatus(documentId, "EMBEDDING");
+    // Throws unless every chunk ends up with a stored vector, so READY always
+    // means the document is fully searchable.
     await embedDocumentChunks(documentId);
 
     await setStatus(documentId, "READY");
   } catch (error) {
     if (error instanceof DocumentGoneError) return;
+    await markFailed(documentId, error);
+  }
+}
 
-    const message =
-      error instanceof ExtractionError
-        ? error.message
-        : "Something went wrong while processing this document.";
-    if (!(error instanceof ExtractionError)) {
-      console.error(`Processing failed for document ${documentId}`, error);
-    }
-    await setStatus(documentId, "FAILED", message).catch(() => {});
+/** Record a failure with a message the user can act on. */
+export async function markFailed(documentId: string, error: unknown): Promise<void> {
+  let message = "Something went wrong while processing this document.";
+  if (error instanceof ExtractionError) {
+    message = error.message;
+  } else if (error instanceof EmbeddingError) {
+    message =
+      "The text was extracted, but embeddings could not be generated. Check that the embedding model is available, then retry.";
+  }
+  if (!(error instanceof ExtractionError)) {
+    console.error(`Processing failed for document ${documentId}`, error);
+  }
+  await setStatus(documentId, "FAILED", message).catch(() => {});
+}
+
+/**
+ * Embed a document whose chunks already exist (uploaded before embeddings
+ * were available, or left half-embedded). Returns the number of new vectors.
+ */
+export async function embedExistingDocument(documentId: string): Promise<number> {
+  try {
+    await setStatus(documentId, "EMBEDDING");
+    const embedded = await embedDocumentChunks(documentId);
+    await setStatus(documentId, "READY");
+    return embedded;
+  } catch (error) {
+    if (!(error instanceof DocumentGoneError)) await markFailed(documentId, error);
+    throw error;
   }
 }
