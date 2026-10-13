@@ -18,7 +18,7 @@ export class OllamaError extends Error {
 const USER_MESSAGES: Record<OllamaErrorCode, string> = {
   unavailable: "The local AI model is not reachable. Make sure Ollama is running, then try again.",
   model_missing: `The model "${config.ollama.model}" is not installed in Ollama. Run: ollama pull ${config.ollama.model}`,
-  timeout: "The local AI model took too long to respond. Try again, or ask a shorter question.",
+  timeout: "The local AI model took too long to respond. Please try again.",
   aborted: "The response was stopped.",
   failed: "The local AI model returned an error. Please try again.",
 };

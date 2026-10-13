@@ -1,6 +1,7 @@
 "use client";
 
-import { ExternalLink, RotateCw, Trash2 } from "lucide-react";
+import { ExternalLink, RotateCw, Sparkles, Trash2 } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -51,6 +52,15 @@ export function DocumentActions({ documentId, status }: DocumentActionsProps) {
     <div className="flex flex-col items-end gap-2">
       <div className="flex flex-wrap items-center justify-end gap-2">
         {status === "READY" && <StartChatButton documentId={documentId} />}
+        {status === "READY" && (
+          <Link
+            href={`/tools?document=${documentId}`}
+            className={buttonVariants({ variant: "outline" })}
+          >
+            <Sparkles />
+            Study tools
+          </Link>
+        )}
         <a
           href={`/api/documents/${documentId}/file`}
           target="_blank"

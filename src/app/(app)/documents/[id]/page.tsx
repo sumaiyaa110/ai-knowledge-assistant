@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { EmptyState } from "@/components/dashboard/empty-state";
 import { DocumentActions } from "@/components/documents/document-actions";
 import { StatusBadge } from "@/components/documents/status-badge";
+import { SummaryView } from "@/components/tools/summary-view";
 import { buttonVariants } from "@/components/ui/button";
 import { requireUser } from "@/lib/auth/session";
 import { prisma } from "@/lib/database/prisma";
@@ -12,6 +13,7 @@ import { getDocument } from "@/lib/documents/service";
 import { formatBytes } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { getTypeLabel, isProcessing } from "@/models/document";
+import type { DocumentSummary } from "@/models/study";
 
 const CHUNKS_PER_PAGE = 20;
 
@@ -45,6 +47,8 @@ export default async function DocumentDetailPage({ params, searchParams }: PageP
     }),
     prisma.embedding.count({ where: { chunk: { documentId: document.id } } }),
   ]);
+
+  const summary = document.summary as unknown as DocumentSummary | null;
 
   const metadata = [
     { label: "Type", value: getTypeLabel(document.mimeType) },
@@ -110,6 +114,17 @@ export default async function DocumentDetailPage({ params, searchParams }: PageP
           </div>
         ))}
       </dl>
+
+      {summary && (
+        <section aria-labelledby="document-summary" className="space-y-3">
+          <h2 id="document-summary" className="text-sm font-medium text-muted-foreground">
+            Summary
+          </h2>
+          <div className="rounded-xl border bg-card p-4">
+            <SummaryView summary={summary} />
+          </div>
+        </section>
+      )}
 
       <section aria-labelledby="extracted-content" className="space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-2">

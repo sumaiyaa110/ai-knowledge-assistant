@@ -8,9 +8,9 @@ Prisma, Ollama, `@huggingface/transformers` (all-MiniLM-L6-v2 embeddings).
 
 ## Status
 
-Phases 1-6 of 8 (foundation, authentication, app layout and dashboard, document
-upload and processing, embeddings and vector search, RAG chat) are complete. AI
-tools follow.
+Phases 1-7 of 8 (foundation, authentication, app layout and dashboard, document
+upload and processing, embeddings and vector search, RAG chat, AI study tools)
+are complete. Final polish follows.
 
 ## Prerequisites
 
@@ -114,6 +114,30 @@ passages -> Ollama streams the answer -> answer and sources are saved
 
 Small local models are slow on CPU and can still misread a passage, so answers
 should be checked against the sources shown.
+
+## AI tools
+
+The AI Tools page works on one ready document at a time:
+
+- **Summary**: a short overview, main points and important concepts. Short
+  documents are summarized in one step; longer ones section by section, then
+  combined (up to 8 sections, sampled evenly, so very long documents are
+  summarized from a sample).
+- **Quiz**: 3, 5 or 10 multiple-choice questions with the correct answer and an
+  explanation, written from passages spread across the document.
+- **Flashcards**: 6, 10 or 16 question/answer cards.
+
+Generation runs as a background job with progress shown on the page; you can
+leave and come back. Quizzes and flashcards are saved as study sets and can be
+reopened or deleted. The summary is stored on the document.
+
+- `src/lib/tools/` holds the generators; `src/lib/ai/jobs.ts` the job runner;
+  `src/lib/ai/tool-prompts.ts` the prompts.
+- Jobs live in memory and run one at a time. Restarting the server cancels a
+  job in progress (nothing partial is saved); just start it again.
+
+Everything is written by the local model and should be checked before relying
+on it.
 
 ## Changing the LLM
 
