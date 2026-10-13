@@ -1,6 +1,6 @@
 import type { ApiError } from "@/models/auth";
 import type { DocumentDTO } from "@/models/document";
-import type { ApiResult } from "./client";
+import { describeHttpFailure, type ApiResult } from "./client";
 
 /**
  * Upload one file to /api/documents. Uses XMLHttpRequest because fetch cannot
@@ -31,7 +31,7 @@ export function uploadDocument(
       } else if (xhr.status === 413) {
         fail((body as ApiError | null)?.error ?? "The file is too large.");
       } else {
-        fail((body as ApiError | null)?.error ?? `Upload failed (${xhr.status})`);
+        fail((body as ApiError | null)?.error ?? describeHttpFailure(xhr.status));
       }
     };
 

@@ -1,8 +1,10 @@
 import { FileText } from "lucide-react";
 import type { Metadata } from "next";
 import { EmptyState } from "@/components/dashboard/empty-state";
+import { ModelStatusBanner } from "@/components/layout/model-status-banner";
 import { PageHeader } from "@/components/layout/page-header";
 import { ToolsWorkspace } from "@/components/tools/tools-workspace";
+import { checkOllama } from "@/lib/ai/ollama";
 import { requireUser } from "@/lib/auth/session";
 import { prisma } from "@/lib/database/prisma";
 import { getDocumentToolsState, listStudySets } from "@/lib/tools/service";
@@ -44,14 +46,16 @@ export default async function ToolsPage({ searchParams }: PageProps) {
   // Preselect the document named in the URL (e.g. from a document's page), if it is the user's.
   const requested = (await searchParams).document;
   const selected = documents.find((document) => document.id === requested) ?? documents[0];
-  const [state, studySets] = await Promise.all([
+  const [state, studySets, ollama] = await Promise.all([
     getDocumentToolsState(user.id, selected.id),
     listStudySets(user.id),
+    checkOllama(),
   ]);
 
   return (
     <div className="space-y-6">
       {header}
+      <ModelStatusBanner problem={ollama.ok ? null : ollama.detail} />
       <ToolsWorkspace
         // Remount when a different document is linked to, so its state is used.
         key={selected.id}

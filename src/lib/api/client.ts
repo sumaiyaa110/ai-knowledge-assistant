@@ -4,6 +4,18 @@ export type ApiResult<T> =
   | { ok: true; data: T }
   | { ok: false; error: string; fieldErrors: Record<string, string[]> };
 
+/**
+ * Message for a response that carried no error text of its own. A bare 5xx
+ * almost always means the server lost its database connection.
+ */
+export function describeHttpFailure(status: number): string {
+  if (status >= 500) {
+    return "The server could not complete the request. Check that the database is running (npm run db:up), then try again.";
+  }
+  if (status === 401) return "Your session has ended. Sign in again.";
+  return `Request failed (${status})`;
+}
+
 /** Browser-side JSON request that always resolves to a typed result. */
 export async function sendJson<T = unknown>(
   url: string,
@@ -22,7 +34,7 @@ export async function sendJson<T = unknown>(
     const failure = json as ApiError | null;
     return {
       ok: false,
-      error: failure?.error ?? `Request failed (${res.status})`,
+      error: failure?.error ?? describeHttpFailure(res.status),
       fieldErrors: failure?.fieldErrors ?? {},
     };
   } catch {

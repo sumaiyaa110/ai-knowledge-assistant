@@ -1,5 +1,6 @@
 import type { ApiError } from "@/models/auth";
 import type { ChatStreamEvent } from "@/models/chat";
+import { describeHttpFailure } from "./client";
 
 /**
  * Send a question and call `onEvent` for every event of the streamed reply.
@@ -29,7 +30,7 @@ export async function streamAnswer(
 
   if (!response.ok || !response.body) {
     const body = (await response.json().catch(() => null)) as ApiError | null;
-    fail(body?.fieldErrors?.content?.[0] ?? body?.error ?? `Request failed (${response.status})`);
+    fail(body?.fieldErrors?.content?.[0] ?? body?.error ?? describeHttpFailure(response.status));
     return;
   }
 
