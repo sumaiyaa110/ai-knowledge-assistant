@@ -26,6 +26,7 @@
   },
   "scripts": {
     "setup": "node scripts/setup.mjs",
+    "personalize": "node scripts/personalize.mjs",
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
     "start": "next start",

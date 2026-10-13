@@ -66,7 +66,12 @@ function toSources(context: RelevantContext): MessageSource[] {
 
 /** Mark which sources the answer cited. A refusal keeps no sources at all. */
 function resolveCitations(answer: string, sources: MessageSource[]): MessageSource[] {
-  const cited = new Set([...answer.matchAll(/\[(\d+)\]/g)].map((match) => Number(match[1])));
+  // Accepts single citations "[1]" and grouped ones such as "[1,2]" or "[1, 3]".
+  const cited = new Set(
+    [...answer.matchAll(/\[(\d+(?:\s*,\s*\d+)*)\]/g)].flatMap((match) =>
+      match[1].split(",").map((number) => Number(number.trim())),
+    ),
+  );
   const refused = answer.toLowerCase().includes(NOT_FOUND_ANSWER.toLowerCase().replace(/\.$/, ""));
   if (refused && cited.size === 0) return [];
   return sources.map((source) => ({ ...source, cited: cited.has(source.number) }));

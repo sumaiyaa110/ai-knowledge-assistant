@@ -51,25 +51,43 @@ that works offline with free, open-source tools.
 
 ## Screenshots
 
-<!--
-  Screenshots are not committed yet. Capture them by following docs/DEMO-GUIDE.md,
-  save them under docs/screenshots/ with the file names below, then replace this
-  table with the images, for example:
+**Chat: answers come from your documents and cite the passages they used**
 
-  ![Dashboard](docs/screenshots/dashboard.png)
--->
+![Chat with a streamed answer and its cited sources](docs/screenshots/chat.png)
 
-| Screen | File to add | What it shows |
-|---|---|---|
-| Start page | `docs/screenshots/landing.png` | feature overview and local service status |
-| Dashboard | `docs/screenshots/dashboard.png` | statistics, quick actions, recent activity |
-| Documents | `docs/screenshots/documents.png` | upload area and processing status badges |
-| Document detail | `docs/screenshots/document-detail.png` | metadata, summary and extracted chunks |
-| Chat | `docs/screenshots/chat.png` | a streamed answer with its cited sources |
-| AI Tools | `docs/screenshots/tools.png` | summary, quiz and flashcard generators |
-| Quiz | `docs/screenshots/quiz.png` | a question with the answer explained |
+**Dashboard**
 
-See [docs/screenshots/README.md](docs/screenshots/README.md) for capture tips.
+![Dashboard with statistics, quick actions and recent activity](docs/screenshots/dashboard.png)
+
+**Documents: upload and processing status**
+
+![Document list with the upload area and status badges](docs/screenshots/documents.png)
+
+**A document: metadata, generated summary and extracted text**
+
+![Document detail page with metadata and summary](docs/screenshots/document-detail.png)
+
+**AI Tools: summary, quiz and flashcard generators**
+
+![AI Tools page showing a generated summary](docs/screenshots/tools.png)
+
+**Quiz: every answer is explained**
+
+![Quiz question with the correct answer and explanation](docs/screenshots/quiz.png)
+
+<details>
+<summary>More screenshots: start page, flashcards and the phone layout</summary>
+
+![Start page with feature overview and local service status](docs/screenshots/landing.png)
+
+![Flashcard deck](docs/screenshots/flashcards.png)
+
+<img src="docs/screenshots/chat-mobile.png" alt="Chat at phone width" width="320">
+
+</details>
+
+The screenshots use a demo account and sample documents. To recapture them, see
+[docs/screenshots/README.md](docs/screenshots/README.md).
 
 ## Features
 
