@@ -49,8 +49,8 @@ export function DocumentActions({ documentId, status }: DocumentActionsProps) {
   }
 
   return (
-    <div className="flex flex-col items-end gap-2">
-      <div className="flex flex-wrap items-center justify-end gap-2">
+    <div className="flex flex-col gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         {status === "READY" && <StartChatButton documentId={documentId} />}
         {status === "READY" && (
           <Link

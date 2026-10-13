@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { Prisma } from "@prisma/client";
 import { jsonError, parseBody } from "@/lib/api/respond";
 import { hashPassword } from "@/lib/auth/password";
+import { clientAddress, limiters, tooManyAttemptsMessage } from "@/lib/auth/rate-limit";
 import { createSession } from "@/lib/auth/session";
 import { prisma } from "@/lib/database/prisma";
 import { registerSchema } from "@/models/auth";
@@ -11,6 +12,16 @@ const EMAIL_TAKEN = "An account with this email already exists";
 export async function POST(request: Request) {
   const { data, response } = await parseBody(request, registerSchema);
   if (response) return response;
+
+  // Every valid-looking attempt counts, whether or not an account is created.
+  const address = clientAddress(request);
+  const wait = limiters.registrationByIp.retryAfterSeconds(address);
+  if (wait > 0) {
+    return jsonError(tooManyAttemptsMessage(wait), 429, undefined, {
+      "Retry-After": String(wait),
+    });
+  }
+  limiters.registrationByIp.record(address);
 
   const existing = await prisma.user.findUnique({
     where: { email: data.email },

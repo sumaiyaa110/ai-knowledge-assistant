@@ -5,6 +5,72 @@ quizzes and flashcards. Everything runs on your own machine: the database, the
 embedding model and the language model. No paid APIs, no cloud AI services, and
 no document ever leaves your computer.
 
+**In one sentence:** a full-stack retrieval-augmented generation (RAG)
+application, built from the database schema to the streaming chat interface,
+that works offline with free, open-source tools.
+
+| | |
+|---|---|
+| **Type** | Full-stack web application with local AI |
+| **Stack** | Next.js 15, TypeScript, PostgreSQL + pgvector, Prisma, Ollama |
+| **Author** | YOUR_NAME ([@YOUR_GITHUB_USERNAME](https://github.com/YOUR_GITHUB_USERNAME)) |
+| **Write-up** | [Project showcase](docs/PROJECT-SHOWCASE.md) · [3-minute demo guide](docs/DEMO-GUIDE.md) |
+
+## Contents
+
+- [What this project demonstrates](#what-this-project-demonstrates)
+- [Screenshots](#screenshots)
+- [Features](#features)
+- [Architecture](#architecture)
+- [How RAG works here](#how-rag-works-here)
+- [Technology stack](#technology-stack)
+- [Quick start](#quick-start)
+- [Try it in 3 minutes](#try-it-in-3-minutes)
+- [Documentation](#documentation)
+- [Limitations](#limitations)
+- [Troubleshooting](#troubleshooting)
+
+## What this project demonstrates
+
+- **Full-stack development**: a typed API, server-rendered pages, client
+  components only where interaction needs them, and one validation schema
+  shared by browser and server.
+- **Database design**: eight related tables with cascading deletes, three
+  migrations, and vector search living next to relational data in PostgreSQL.
+- **A complete RAG pipeline written by hand**: text extraction, a recursive
+  chunker, local embeddings, cosine similarity search and prompt assembly,
+  without an orchestration framework.
+- **Authentication from first principles**: bcrypt hashing, JWT sessions in
+  httpOnly cookies, session invalidation on password change, rate limiting.
+- **Working with an unreliable component**: small local models make mistakes,
+  so answers must cite sources, unsupported questions are refused before the
+  model is called, model output is schema-validated, and quiz answer keys are
+  double-checked.
+- **Handling slow work**: streamed chat answers, background jobs with progress,
+  and clear states for loading, empty, failed and "service is down".
+
+## Screenshots
+
+<!--
+  Screenshots are not committed yet. Capture them by following docs/DEMO-GUIDE.md,
+  save them under docs/screenshots/ with the file names below, then replace this
+  table with the images, for example:
+
+  ![Dashboard](docs/screenshots/dashboard.png)
+-->
+
+| Screen | File to add | What it shows |
+|---|---|---|
+| Start page | `docs/screenshots/landing.png` | feature overview and local service status |
+| Dashboard | `docs/screenshots/dashboard.png` | statistics, quick actions, recent activity |
+| Documents | `docs/screenshots/documents.png` | upload area and processing status badges |
+| Document detail | `docs/screenshots/document-detail.png` | metadata, summary and extracted chunks |
+| Chat | `docs/screenshots/chat.png` | a streamed answer with its cited sources |
+| AI Tools | `docs/screenshots/tools.png` | summary, quiz and flashcard generators |
+| Quiz | `docs/screenshots/quiz.png` | a question with the answer explained |
+
+See [docs/screenshots/README.md](docs/screenshots/README.md) for capture tips.
+
 ## Features
 
 - **Accounts**: register, sign in, sign out, edit your profile, change your password.
@@ -15,8 +81,9 @@ no document ever leaves your computer.
 - **Chat**: a ChatGPT-style interface that answers only from your documents,
   streams the answer, cites its sources, and refuses when the documents do not
   contain the answer.
-- **Study tools**: summaries, multiple-choice quizzes and flashcards generated
-  from a document, saved so you can come back to them.
+- **Study tools**: summaries, multiple-choice quizzes (up to 3, 5 or 10
+  questions) and flashcards generated from a document, saved so you can come
+  back to them.
 - **Dashboard**: document, conversation and storage statistics with recent activity.
 - **Interface**: responsive layout with a sidebar, dark mode, loading, empty and
   error states.
@@ -59,12 +126,39 @@ One Next.js application serves the interface and the API. It talks to two local
 services: PostgreSQL (in Docker) and Ollama. The embedding model runs inside the
 Next.js process itself.
 
-More detail:
+## How RAG works here
 
-- [Architecture and folder structure](docs/ARCHITECTURE.md)
-- [Database design](docs/DATABASE.md)
-- [RAG pipeline](docs/RAG-PIPELINE.md)
-- [AI features and prompts](docs/AI-FEATURES.md)
+A language model on its own can only answer from what it memorised in training.
+Retrieval-augmented generation gives it the relevant passages from *your*
+documents at question time, and asks it to answer from those alone.
+
+**Preparing a document** (once, after upload):
+
+```mermaid
+flowchart LR
+    A[Upload<br/>PDF, TXT, MD] --> B[Extract text<br/>per page]
+    B --> C[Clean]
+    C --> D[Split into chunks<br/>~800 characters,<br/>150 overlap]
+    D --> E[Embed each chunk<br/>384 numbers]
+    E --> F[(Store vectors<br/>in pgvector)]
+```
+
+**Answering a question** (every time):
+
+```mermaid
+flowchart LR
+    Q[Question] --> E[Embed the question]
+    E --> S[Find the closest chunks<br/>in the user's documents]
+    S --> T{Relevant<br/>enough?}
+    T -- no --> R[Reply 'not in your documents'<br/>without calling the model]
+    T -- yes --> P[Prompt = rules + sources<br/>+ history + question]
+    P --> L[Local model<br/>streams the answer]
+    L --> C[Answer with citations<br/>saved with its sources]
+```
+
+The "relevant enough?" check is the most important design decision in the
+project: a question the documents cannot answer never reaches the model, so the
+model has no chance to make something up.
 
 ## Technology stack
 
@@ -95,7 +189,7 @@ language model and 90 MB for the embedding model.
 ## Quick start
 
 ```bash
-git clone <your-repository-url> ai-knowledge-assistant
+git clone https://github.com/YOUR_GITHUB_USERNAME/ai-knowledge-assistant.git
 cd ai-knowledge-assistant
 npm install
 ollama pull qwen2.5:3b
@@ -108,6 +202,30 @@ Open http://localhost:3000 and create an account.
 `npm run setup` creates `.env` with a random `JWT_SECRET`, starts the database
 container, creates the tables, downloads the embedding model and checks Ollama.
 It can be run again at any time and never deletes data.
+
+## Try it in 3 minutes
+
+1. Create an account on the start page.
+2. Open **Documents** and drop in a PDF, text or Markdown file. Watch the
+   status move through *Extracting text*, *Splitting* and *Indexing* to *Ready*.
+3. Open the document and press **Chat with this document**. Pick one of the
+   suggested questions, or ask your own. Expand **Sources** under the answer.
+4. Ask something the document does not cover, and see it decline.
+5. Open **AI Tools**, press **Summarize**, then generate a quiz and play it.
+
+[docs/DEMO-GUIDE.md](docs/DEMO-GUIDE.md) has a timed script for presenting this.
+
+## Documentation
+
+| Document | What it covers |
+|---|---|
+| [Project showcase](docs/PROJECT-SHOWCASE.md) | motivation, challenges, decisions and lessons learned |
+| [Demo guide](docs/DEMO-GUIDE.md) | a 3-minute walkthrough and what to point out |
+| [Architecture](docs/ARCHITECTURE.md) | layers, request flows, folder structure, trade-offs |
+| [Database design](docs/DATABASE.md) | tables, relationships, pgvector with Prisma |
+| [RAG pipeline](docs/RAG-PIPELINE.md) | ingestion and query, stage by stage |
+| [AI features](docs/AI-FEATURES.md) | prompts, structured output, background jobs |
+| [Security](docs/SECURITY.md) | what is protected, and the known limits |
 
 ## Manual setup
 
@@ -189,6 +307,7 @@ else has a working default. See `.env.example` for the full, commented list.
 | `DATABASE_URL` | `postgresql://aika:…@localhost:5433/aika` | Prisma connection string |
 | `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`, `POSTGRES_PORT` | `aika`, …, `aika`, `5433` | used by `docker-compose.yml`; keep in sync with `DATABASE_URL` |
 | `JWT_SECRET` | none | signs session tokens; at least 32 characters |
+| `NEXT_PUBLIC_APP_URL` | `http://localhost:3000` | base address for links in page metadata |
 | `OLLAMA_BASE_URL` | `http://localhost:11434` | where Ollama listens |
 | `OLLAMA_MODEL` | `qwen2.5:3b` | language model for chat and study tools |
 | `OLLAMA_NUM_CTX` | `4096` | context window requested from the model |
@@ -280,6 +399,10 @@ existing documents.
 | Signed out after changing `JWT_SECRET` | Expected: old sessions can no longer be verified. Sign in again. |
 | First upload is slow or fails offline | The embedding model is downloading. Run `npm run embeddings:download` while online. |
 | `prisma generate` fails with EPERM on Windows | Stop the dev server first; it holds the Prisma engine file open. |
+
+## License
+
+[MIT](LICENSE) © YOUR_NAME
 
 ## Project structure
 

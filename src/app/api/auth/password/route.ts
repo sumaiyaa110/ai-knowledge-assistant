@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { jsonError, parseBody } from "@/lib/api/respond";
 import { hashPassword, verifyPassword } from "@/lib/auth/password";
+import { limiters, tooManyAttemptsMessage } from "@/lib/auth/rate-limit";
 import { createSession, getCurrentUser } from "@/lib/auth/session";
 import { prisma } from "@/lib/database/prisma";
 import { changePasswordSchema } from "@/models/auth";
@@ -16,10 +17,20 @@ export async function POST(request: Request) {
     where: { id: user.id },
     select: { passwordHash: true },
   });
+  // A stolen session must not be usable to guess the current password freely.
+  const wait = limiters.passwordChangeByUser.retryAfterSeconds(user.id);
+  if (wait > 0) {
+    return jsonError(tooManyAttemptsMessage(wait), 429, undefined, {
+      "Retry-After": String(wait),
+    });
+  }
+
   if (!(await verifyPassword(data.currentPassword, record?.passwordHash))) {
+    limiters.passwordChangeByUser.record(user.id);
     const message = "Current password is incorrect";
     return jsonError(message, 400, { currentPassword: [message] });
   }
+  limiters.passwordChangeByUser.clear(user.id);
 
   // Bumping sessionVersion signs out every other device; this one gets a fresh cookie.
   const updated = await prisma.user.update({

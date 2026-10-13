@@ -1,6 +1,25 @@
 {
   "name": "ai-knowledge-assistant",
   "version": "1.0.0",
+  "description": "Chat with your documents, summarize them and build quizzes and flashcards, using AI models that run entirely on your own computer. Local RAG with Next.js, PostgreSQL + pgvector and Ollama.",
+  "keywords": [
+    "rag",
+    "retrieval-augmented-generation",
+    "ollama",
+    "pgvector",
+    "nextjs",
+    "prisma",
+    "local-llm",
+    "embeddings",
+    "document-chat",
+    "typescript"
+  ],
+  "author": "YOUR_NAME",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/YOUR_GITHUB_USERNAME/ai-knowledge-assistant.git"
+  },
   "private": true,
   "engines": {
     "node": ">=20"
