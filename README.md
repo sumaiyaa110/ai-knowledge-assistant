@@ -351,6 +351,7 @@ else has a working default. See `.env.example` for the full, commented list.
 | `npm run dev` | start the development server |
 | `npm run build` / `npm run start` | production build and server |
 | `npm run lint` / `npm run type-check` | ESLint and TypeScript checks |
+| `npm test` | run the tests for the project scripts |
 | `npm run db:up` / `npm run db:down` | start / stop the database container (data is kept) |
 | `npm run db:setup` | start the database and apply migrations |
 | `npm run db:migrate` | create and apply a migration after a schema change |
