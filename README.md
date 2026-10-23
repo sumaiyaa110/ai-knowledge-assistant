@@ -13,7 +13,7 @@ that works offline with free, open-source tools.
 |---|---|
 | **Type** | Full-stack web application with local AI |
 | **Stack** | Next.js 15, TypeScript, PostgreSQL + pgvector, Prisma, Ollama |
-| **Author** | YOUR_NAME ([@YOUR_GITHUB_USERNAME](https://github.com/YOUR_GITHUB_USERNAME)) |
+| **Author** | Sumaiya Zaman ([@sumaiyaa110](https://github.com/sumaiyaa110)) |
 | **Write-up** | [Project showcase](docs/PROJECT-SHOWCASE.md) · [3-minute demo guide](docs/DEMO-GUIDE.md) |
 
 ## Contents
@@ -207,7 +207,7 @@ language model and 90 MB for the embedding model.
 ## Quick start
 
 ```bash
-git clone https://github.com/YOUR_GITHUB_USERNAME/ai-knowledge-assistant.git
+git clone https://github.com/sumaiyaa110/ai-knowledge-assistant.git
 cd ai-knowledge-assistant
 npm install
 ollama pull qwen2.5:3b
@@ -420,7 +420,7 @@ existing documents.
 
 ## License
 
-[MIT](LICENSE) © YOUR_NAME
+[MIT](LICENSE) © Sumaiya Zaman
 
 ## Project structure
 

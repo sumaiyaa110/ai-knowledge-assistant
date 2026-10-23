@@ -1,6 +1,6 @@
 # Project showcase: AI Knowledge Assistant
 
-*By YOUR_NAME. A walkthrough of why I built this, how it works, what went wrong
+*By Sumaiya Zaman. A walkthrough of why I built this, how it works, what went wrong
 along the way, and what I would do next.*
 
 ## Motivation

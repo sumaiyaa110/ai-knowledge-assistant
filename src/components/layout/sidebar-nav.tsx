@@ -26,7 +26,7 @@ export function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
                 : "text-muted-foreground hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground",
             )}
           >
-            <Icon className="size-4 shrink-0" />
+            <Icon className={cn("size-4 shrink-0", active && "text-sidebar-primary")} />
             {label}
           </Link>
         );

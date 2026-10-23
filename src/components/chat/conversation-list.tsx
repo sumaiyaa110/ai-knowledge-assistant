@@ -110,11 +110,11 @@ function ConversationItem({
         aria-current={active ? "page" : undefined}
         className="flex min-w-0 flex-1 items-center gap-2 rounded-lg px-2.5 py-2 text-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
       >
-        <MessageSquare className="size-4 shrink-0 text-muted-foreground" />
+        <MessageSquare className={cn("size-4 shrink-0", active ? "text-sidebar-primary" : "text-muted-foreground")} />
         <span className="truncate">{conversation.title}</span>
       </Link>
       {/* Always visible on touch screens; revealed on hover or focus elsewhere. */}
-      <div className="flex shrink-0 pr-1 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-focus-within:opacity-100 [@media(hover:hover)]:group-hover:opacity-100">
+      <div className="flex shrink-0 pr-1 [@media(hover:hover)]:hidden [@media(hover:hover)]:group-focus-within:flex [@media(hover:hover)]:group-hover:flex">
         <Button
           variant="ghost"
           size="icon-sm"

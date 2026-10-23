@@ -107,7 +107,7 @@ export default async function DashboardPage() {
         </div>
       </section>
 
-      <section className="grid gap-4 lg:grid-cols-2">
+      <section className="grid gap-4 lg:grid-cols-2 lg:items-start">
         <SectionCard
           title="Recent conversations"
           viewAll={

@@ -14,11 +14,11 @@
     "document-chat",
     "typescript"
   ],
-  "author": "YOUR_NAME",
+  "author": "Sumaiya Zaman",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/YOUR_GITHUB_USERNAME/ai-knowledge-assistant.git"
+    "url": "https://github.com/sumaiyaa110/ai-knowledge-assistant.git"
   },
   "private": true,
   "engines": {

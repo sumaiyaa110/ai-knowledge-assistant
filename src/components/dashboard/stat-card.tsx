@@ -15,7 +15,9 @@ export function StatCard({ label, value, hint, icon: Icon, progress }: StatCardP
     <div className="rounded-xl border bg-card p-4 text-card-foreground">
       <div className="flex items-center justify-between gap-2">
         <p className="text-sm text-muted-foreground">{label}</p>
-        <Icon className="size-4 shrink-0 text-muted-foreground" />
+        <span className="flex size-7 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
+          <Icon className="size-3.5" />
+        </span>
       </div>
       <p className="mt-2 text-2xl font-semibold tracking-tight tabular-nums">{value}</p>
       {progress !== undefined && (
