@@ -33,9 +33,9 @@ export function AssistantMessage({
     <div className="flex gap-3">
       <span
         aria-hidden
-        className="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-lg bg-muted"
+        className="mt-0.5 flex size-7 shrink-0 items-center justify-center rounded-lg bg-primary/10"
       >
-        <BookOpenText className="size-4 text-muted-foreground" />
+        <BookOpenText className="size-4 text-primary" />
       </span>
       <div className="min-w-0 flex-1 text-sm">
         {content ? (

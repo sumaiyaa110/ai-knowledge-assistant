@@ -73,7 +73,11 @@ export default async function Home() {
   const allRunning = database.ok && ollama.ok;
 
   return (
-    <div className="flex min-h-dvh flex-col">
+    <div className="relative isolate flex min-h-dvh flex-col">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[32rem] bg-[radial-gradient(60%_50%_at_30%_0%,color-mix(in_oklch,var(--primary)_14%,transparent),transparent)]"
+      />
       <header className="flex items-center justify-between gap-3 border-b px-4 py-3 sm:px-6">
         <Brand href="/" />
         <div className="flex items-center gap-2">
@@ -89,7 +93,10 @@ export default async function Home() {
       <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-12 px-4 py-12 sm:px-6 sm:py-16">
         <section className="max-w-2xl space-y-5">
           <h1 className="text-3xl font-semibold tracking-tight text-balance sm:text-5xl">
-            Chat with your documents, entirely on your machine
+            Chat with your documents,{" "}
+            <span className="bg-gradient-to-r from-primary to-violet-500 bg-clip-text text-transparent">
+              entirely on your machine
+            </span>
           </h1>
           <p className="text-lg text-muted-foreground">
             Upload PDFs, text and Markdown files, then ask questions, get summaries and
@@ -116,9 +123,9 @@ export default async function Home() {
         <section aria-label="Features">
           <ul className="grid gap-4 md:grid-cols-3">
             {FEATURES.map(({ icon: Icon, title, description }) => (
-              <li key={title} className="rounded-xl border bg-card p-4">
-                <span className="flex size-9 items-center justify-center rounded-lg bg-muted">
-                  <Icon className="size-4 text-muted-foreground" />
+              <li key={title} className="rounded-xl border bg-card p-4 transition-colors hover:border-primary/30">
+                <span className="flex size-9 items-center justify-center rounded-lg bg-primary/10">
+                  <Icon className="size-4 text-primary" />
                 </span>
                 <h2 className="mt-3 font-medium">{title}</h2>
                 <p className="mt-1 text-sm text-muted-foreground">{description}</p>
